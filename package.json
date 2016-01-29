@@ -1,0 +1,19 @@
+{
+  "name": "webhooks",
+  "version": "0.0.1",
+  "description": "Node.js Webhooks app",
+  "author": "Flavio Negrao <flavio@omni.chat>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "~4.13.x",
+    "body-parser": "latest",
+    "iron_mq": "latest",
+    "le_node": "latest",
+    "parse-cloud-express": "~1.1.0",
+    "newrelic": "latest",
+    "slack-node": "latest"
+  }
+}
