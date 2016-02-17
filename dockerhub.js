@@ -10,7 +10,7 @@ var jsonParser = bodyParser.json()
 
 var Slack = require('./slack');
 var slack = new Slack({
-    "slackChannel":'https://hooks.slack.com/services/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',
+    "slackChannel":'https://hooks.slack.com/services/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',
     "username":"OmniChat Docker Auto Provisioning",
     "iconUrl":"https://raw.githubusercontent.com/MWers/docker-docset/master/assets/docset/icon@2x.png"});
 
@@ -50,7 +50,7 @@ router.post('/', jsonParser, function (req, res) {
 
     if (body.push_data && body.push_data.tag == 'devel') {
         var imageName = '[' + body.repository.name + ':' + body.push_data.tag + ']';
-        var message = imageName + ' -  Image has been built from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
+        var message = imageName + ' -  Image has been rebuilt from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
         slack.postMessage(message);
         console.log(message);
         res.sendStatus(200);

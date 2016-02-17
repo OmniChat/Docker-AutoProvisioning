@@ -25,7 +25,7 @@ app.all('/', function(request, response) {
 /*
  * Launch the HTTP server
  */
-var port = process.env.PORT || 6000;
+var port = process.env.PORT || 40000;
 var server = http.createServer(app);
 server.listen(port, function() {
   console.log('Webhooks server running on port ' + port + '.');
