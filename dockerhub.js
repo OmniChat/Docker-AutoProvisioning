@@ -10,7 +10,7 @@ var jsonParser = bodyParser.json()
 
 var Slack = require('./slack');
 var slack = new Slack({
-    "slackChannel":'https://hooks.slack.com/services/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',
+    "slackChannel":process.env.SLACK_CHANNEL,
     "username":"OmniChat Docker Auto Provisioning",
     "iconUrl":"https://raw.githubusercontent.com/MWers/docker-docset/master/assets/docset/icon@2x.png"});
 
