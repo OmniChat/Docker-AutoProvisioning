@@ -48,7 +48,7 @@ var router = express.Router();
 router.post('/', jsonParser, function (req, res) {
     var body = req.body;
 
-    if (body.push_data && body.push_data.tag == 'devel') {
+    if (body.push_data && body.push_data.tag == 'master') {
         var imageName = '[' + body.repository.name + ':' + body.push_data.tag + ']';
         var message = imageName + ' -  Image has been rebuilt from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
         slack.postMessage(message);
