@@ -48,19 +48,25 @@ var router = express.Router();
 router.post('/', jsonParser, function (req, res) {
     var body = req.body;
 
-    if (body.push_data && body.push_data.tag == 'master') {
+    if (body.push_data && body.push_data.tag === process.env.GITHUB_BRANCH) {
+        var start = Date.now();
         var imageName = '[' + body.repository.name + ':' + body.push_data.tag + ']';
-        var message = imageName + ' -  Image has been rebuilt from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
+        var message = imageName + ' -  building from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
         slack.postMessage(message);
         console.log(message);
         res.sendStatus(200);
 
         exec('/opt/docker-scripts/update-' + body.repository.name + '.sh', function (error, stdout, stderr) {
+            var finish = Date.now();
+            var deltaInSeconds = (finish - start) / 1000;
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
             if (error !== null) {
                 console.log(imageName + error);
                 slack.postError(imageName + error);
+            } else {
+              var message = imageName + ' -  successfully built in ' + deltaInSeconds + ' seconds';
+              slack.postMessage(message);
             }
         });
 
