@@ -10,7 +10,7 @@ var jsonParser = bodyParser.json()
 
 var Slack = require('./slack');
 var slack = new Slack({
-    "slackChannel":'https://hooks.slack.com/services/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',
+    "slackChannel":process.env.SLACK_CHANNEL,
     "username":"OmniChat Docker Auto Provisioning",
     "iconUrl":"https://raw.githubusercontent.com/MWers/docker-docset/master/assets/docset/icon@2x.png"});
 
@@ -49,18 +49,24 @@ router.post('/', jsonParser, function (req, res) {
     var body = req.body;
 
     if (body.push_data && body.push_data.tag == 'devel') {
+        var start = Date.now();
         var imageName = '[' + body.repository.name + ':' + body.push_data.tag + ']';
-        var message = imageName + ' -  Image has been built from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
+        var message = imageName + ' -  building from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
         slack.postMessage(message);
         console.log(message);
         res.sendStatus(200);
 
         exec('/opt/docker-scripts/update-' + body.repository.name + '.sh', function (error, stdout, stderr) {
+            var finish = Date.now();
+            var deltaInSeconds = (finish - start) / 1000;
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
             if (error !== null) {
                 console.log(imageName + error);
                 slack.postError(imageName + error);
+            } else {
+              var message = imageName + ' -  successfully built in ' + deltaInSeconds + ' seconds';
+              slack.postMessage(message);
             }
         });
 
