@@ -3,16 +3,17 @@ var url = require('url');
 var bodyParser = require('body-parser');
 
 var sys = require('sys')
-var exec = require('child_process').exec;
+var execFile = require('child_process').execFile;
 
 // create application/json parser
 var jsonParser = bodyParser.json()
 
 var Slack = require('./slack');
 var slack = new Slack({
-    "slackChannel":process.env.SLACK_CHANNEL,
-    "username":"OmniChat Docker Auto Provisioning",
-    "iconUrl":"https://raw.githubusercontent.com/MWers/docker-docset/master/assets/docset/icon@2x.png"});
+    "slackChannel": process.env.SLACK_CHANNEL,
+    "username": "OmniChat Docker Auto Provisioning",
+    "iconUrl": "https://raw.githubusercontent.com/MWers/docker-docset/master/assets/docset/icon@2x.png"
+});
 
 var router = express.Router();
 
@@ -48,25 +49,32 @@ var router = express.Router();
 router.post('/', jsonParser, function (req, res) {
     var body = req.body;
 
-    if (body.push_data && body.push_data.tag == 'devel') {
+    if (body.push_data && body.push_data.tag === 'devel') {
         var start = Date.now();
-        var imageName = '[' + body.repository.name + ':' + body.push_data.tag + ']';
+        var imageName = 'omnichat/' + body.repository.name + ':' + body.push_data.tag;
         var message = imageName + ' -  building from a PUSH by ' + body.push_data.pusher + ' at Docker Hub - ' + body.repository.repo_url;
         slack.postMessage(message);
         console.log(message);
         res.sendStatus(200);
 
-        exec('/opt/docker-scripts/update-' + body.repository.name + '.sh', function (error, stdout, stderr) {
-            var finish = Date.now();
-            var deltaInSeconds = (finish - start) / 1000;
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
-            if (error !== null) {
+        execFile('docker', ['pull', imageName], function (error, stdout, stderr) {
+            if (error) {
                 console.log(imageName + error);
                 slack.postError(imageName + error);
             } else {
-              var message = imageName + ' -  successfully built in ' + deltaInSeconds + ' seconds';
-              slack.postMessage(message);
+                exec('docker-recreate-only.sh ' + body.repository.name, function (error, stdout, stderr) {
+                    var finish = Date.now();
+                    var deltaInSeconds = (finish - start) / 1000;
+                    console.log('stdout: ' + stdout);
+                    console.log('stderr: ' + stderr);
+                    if (error !== null) {
+                        console.log(imageName + error);
+                        slack.postError(imageName + error);
+                    } else {
+                        var message = imageName + ' -  successfully built in ' + deltaInSeconds + ' seconds';
+                        slack.postMessage(message);
+                    }
+                });
             }
         });
 

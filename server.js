@@ -13,8 +13,8 @@ app.get('/new_relic_monitor', function (request, response) {
 });
 
 //routers - docker-hub
-var moip = require('./dockerhub');
-app.use('/dockerhub', moip);
+var dockerhub = require('./dockerhub');
+app.use('/dockerhub', dockerhub);
 
 // Catch all unknown routes.
 app.all('/', function(request, response) {
@@ -28,5 +28,5 @@ app.all('/', function(request, response) {
 var port = process.env.PORT || 6000;
 var server = http.createServer(app);
 server.listen(port, function() {
-  console.log('Webhooks server running on port ' + port + '.');
+  console.log('Docker-AutoProvisioning server running on port ' + port + '.');
 });
